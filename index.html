@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+	<script src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/paper-full.min.js"></script>
+	<script type="text/paperscript" canvas="frontCanvas" src="js/main.js">
+		
+	// Getting Webcam frame	
+		
+
+	</script>
+	
+
+	<style>
+		body,html {
+			margin:0;
+			padding: 0;
+			background-color: #000;
+			text-align: center;
+		}
+		video {
+			display: none;
+		}
+		canvas {
+			position: absolute;
+			top: 80px;
+			left: 0;
+			right: 0;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		#sourceCanvas {
+			display:none;
+			
+		}
+		
+		#frontCanvas {
+			width: 800px;
+			height: 600px;
+		}
+		h1 {
+			color: #fff;
+		}
+		.general {
+			filter: contrast(1.2) brightness(1.2);
+			-webkit-filter: contrast(1.2) brightness(1.2);
+		}
+		.highlight {
+			filter: contrast(1.5) brightness(1.4) grayscale(1);
+			-webkit-filter: contrast(2) brightness(1.5) grayscale(1);
+		}
+	</style>
+</head>
+
+<body>
+	<h1>人體刮刮樂</h1>	
+	<video autoplay></video>
+	<canvas id="sourceCanvas"></canvas>
+	<canvas id="backCanvas" class="general"></canvas>
+	<canvas id="frontCanvas"></canvas>
+		
+</html>
