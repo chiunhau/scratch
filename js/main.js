@@ -1,4 +1,3 @@
-
 var video = document.querySelector('video');
 var diff = [];
 var COLS = 40;
