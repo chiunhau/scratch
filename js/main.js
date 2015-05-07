@@ -4,6 +4,9 @@ var COLS = 40;
 var ROWS = 30;
 var initialized = false;
 var showCardWaiting = 0;
+var scratching = false;
+var freezing = false;
+
 function getWebcam(){
 	navigator.getMedia =  navigator.getUserMedia ||
         								navigator.webkitGetUserMedia ||
@@ -116,7 +119,7 @@ Back.prototype.drawCanvas = function() {
 	var c = this.canvas.getContext('2d');
 	var width = this.canvas.width;
 	var height = this.canvas.height;
-	if(frontCanvas.isScratching) {
+	if(scratching) {
 		c.save();
 		c.scale(-1, 1);
 	  c.drawImage(video, -width, 0, width, height);
@@ -140,13 +143,11 @@ function Front(width, height) {
 	this.rowHeight = height / ROWS;
 	this.bricks = [];
 	this.cleared = 0;
-	this.isScratching = true;
 }
 
 Front.prototype.initCanvas = function() {
 	this.canvas.width = this.width;
 	this.canvas.height = this.height;
-
 }
 
 Front.prototype.fill = function() {
@@ -172,14 +173,17 @@ Front.prototype.scratch = function() {
 			if(this.bricks[index].opacity === 1) {
 				this.cleared += 1;
 				this.bricks[index].opacity = 0;
+
 				if (this.cleared === 1200) {
-					this.isScratching  = false;
+					scratching  = false;
+					
 					backCanvas.capture();
 					$(function(){
 						$('#backCanvas').removeClass('general');
 		  			$('#backCanvas').addClass('highlight');
 		  		});
-		  		this.fill();
+		  		freezing = true;
+		  		freezeCardWaiting = 100;
 				}
 			}
 		}	
@@ -211,13 +215,16 @@ Front.prototype.recover = function() {
 		}
 	}
 }
-var waitingCounter = 0;
-
 
 function onFrame(event){
+	console.log(frontCanvas.cleared);
 	if (initialized) {
 		if (showCardWaiting > 0) {
 			showCardWaiting -= 1;
+			if (showCardWaiting === 0) {
+				frontCanvas.cleared = 0;
+				scratching = true;
+			};
 
 		}
 		else if (scratching) {
@@ -226,19 +233,16 @@ function onFrame(event){
 		  frontCanvas.scratch();
 		}
 		else if (freezeCardWaiting > 0) {
+			backCanvas.drawCanvas();
+
 			freezeCardWaiting -= 1;
+			if(freezeCardWaiting === 0) {
+				freezeCardWaiting = false;
+				frontCanvas.showCard();
+			}
 		}
 		else {
-			sourceCanvas.drawCanvas();
-		  backCanvas.drawCanvas();
-		  if (start) {
-		  	if (frontCanvas.isScratching) {
-		  		frontCanvas.scratch();
-		  	}
-		  	else {
-		  		frontCanvas.recover();
-		  	}
-		  }
+		
 		}
 	};
 }
