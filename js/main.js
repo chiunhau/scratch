@@ -97,7 +97,7 @@ Source.prototype.detect = function() {
 			var db = Math.abs(previous.data[pixelPos + 2] - current.data[pixelPos + 2]);
 
 			// motion detected
-			if((dr + dg + db) >= 100) {
+			if((dr + dg + db) >= 50) {
 				diff.push([c, r]);
 			}			
 		}
@@ -159,18 +159,25 @@ Front.prototype.fill = function() {
 			var rectangle = new Rectangle(new Point(x, y), new Point(x + this.colWidth, y + this.rowHeight));
 			var brick  = new Path.Rectangle(rectangle);
 			brick.fillColor = this.bg;
+			brick.opacity = 1;
 			this.bricks.push(brick);
 		}
 	}
+	$(function(){
+		$('#backCanvas').addClass('general');
+		$('#backCanvas').removeClass('highlight');
+	});
 }
 
 Front.prototype.scratch = function() {
 
 	var diffs = diff.length;
+
 	if(diffs > 0) {
 		for(var i = 0; i < diffs; i ++) {
 			var index = diff[i][1] * COLS + diff[i][0];
 			if(this.bricks[index].opacity === 1) {
+				console.log('haha');
 				this.cleared += 1;
 				this.bricks[index].opacity = 0;
 
@@ -183,7 +190,7 @@ Front.prototype.scratch = function() {
 		  			$('#backCanvas').addClass('highlight');
 		  		});
 		  		freezing = true;
-		  		freezeCardWaiting = 100;
+		  		freezeCardWaiting = 180;
 				}
 			}
 		}	
@@ -191,34 +198,20 @@ Front.prototype.scratch = function() {
 }
 
 Front.prototype.showCard = function() {
+	this.bricks = [];
 	this.fill();
 	showCardWaiting = 60;
+
 }
 
 Front.prototype.recover = function() {
-	var diffs = diff.length;
-	if(diffs > 0) {
-		for(var i = 0; i < diffs; i ++) {
-			var index = diff[i][1] * COLS + diff[i][0];
-			if(this.bricks[index].opacity === 0) {
-				this.cleared -= 1;
-				this.bricks[index].opacity = 1;
-				if (this.cleared === 0) {
-					this.isScratching  = true;
-					$(function(){
-		  			$('#backCanvas').removeClass('highlight');
-		  			$('#backCanvas').addClass('general');
-		  		});
-					break;
-				}
-			}
-		}
-	}
+	
 }
 
 function onFrame(event){
-	console.log(frontCanvas.cleared);
+
 	if (initialized) {
+
 		if (showCardWaiting > 0) {
 			showCardWaiting -= 1;
 			if (showCardWaiting === 0) {
@@ -237,14 +230,11 @@ function onFrame(event){
 
 			freezeCardWaiting -= 1;
 			if(freezeCardWaiting === 0) {
-				freezeCardWaiting = false;
+				freezing = false;
 				frontCanvas.showCard();
 			}
 		}
-		else {
-		
-		}
-	};
+	}
 }
 
 var sourceCanvas = new Source(800,600);
