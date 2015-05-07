@@ -2,8 +2,8 @@ var video = document.querySelector('video');
 var diff = [];
 var COLS = 40;
 var ROWS = 30;
-var start = false;
-var waiting = false;
+var initialized = false;
+var showCardWaiting = 0;
 function getWebcam(){
 	navigator.getMedia =  navigator.getUserMedia ||
         								navigator.webkitGetUserMedia ||
@@ -20,7 +20,7 @@ function getWebcam(){
 				video.src = window.URL.createObjectURL(localMediaStream);
 				video.onloadedmetadata = function(e) {
 		      setTimeout(function(){
-		      	start = true;
+		      	initialized = true;
 		      	onFrame();
 		      },1000);
 		    };
@@ -179,16 +179,16 @@ Front.prototype.scratch = function() {
 						$('#backCanvas').removeClass('general');
 		  			$('#backCanvas').addClass('highlight');
 		  		});
-		  		this.bg = 'hsl('+ Math.random() * 360 + ', 100%, 70%)';
-		  		for(var i = 0; i< 1200; i ++) {
-		  			this.bricks[i].fillColor = this.bg;
-		  		}
-		  		waiting = true;
-					break;
+		  		this.fill();
 				}
 			}
 		}	
 	}
+}
+
+Front.prototype.showCard = function() {
+	this.fill();
+	showCardWaiting = 60;
 }
 
 Front.prototype.recover = function() {
@@ -215,28 +215,32 @@ var waitingCounter = 0;
 
 
 function onFrame(event){
-	/*if(waiting) {
-		waitingCounter += 1;
-		if(waitingCounter >= 300) {
-			waitingCounter = 0;
-			waiting = false;
-			sourceCanvas.currentFrame = null;
-			sourceCanvas.previousFrame = null;
+	if (initialized) {
+		if (showCardWaiting > 0) {
+			showCardWaiting -= 1;
+
 		}
-	}
-	else {*/
-		sourceCanvas.drawCanvas();
-	  backCanvas.drawCanvas();
-	  if (start) {
-	  	if (frontCanvas.isScratching) {
-	  		frontCanvas.scratch();
-	  	}
-	  	else {
-	  		frontCanvas.recover();
-	  	}
-	  }
-	/*}*/
-	
+		else if (scratching) {
+			sourceCanvas.drawCanvas();
+		  backCanvas.drawCanvas();
+		  frontCanvas.scratch();
+		}
+		else if (freezeCardWaiting > 0) {
+			freezeCardWaiting -= 1;
+		}
+		else {
+			sourceCanvas.drawCanvas();
+		  backCanvas.drawCanvas();
+		  if (start) {
+		  	if (frontCanvas.isScratching) {
+		  		frontCanvas.scratch();
+		  	}
+		  	else {
+		  		frontCanvas.recover();
+		  	}
+		  }
+		}
+	};
 }
 
 var sourceCanvas = new Source(800,600);
@@ -246,8 +250,9 @@ var backCanvas = new Back(800, 600);
 backCanvas.initCanvas();
 
 var frontCanvas = new Front(800, 600);
-view.size = new Size(this.width, this.height);
 frontCanvas.initCanvas();
-frontCanvas.fill();
+frontCanvas.showCard();
+
+view.size = new Size(this.width, this.height);
 getWebcam();
 
